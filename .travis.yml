@@ -17,6 +17,7 @@ services:
 
 ## Script to run for the test stage
 script:
+  - bin/kitchen list
   - bin/kitchen verify "${INSTANCE}"
 
 ## Stages and jobs matrix
