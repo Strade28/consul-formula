@@ -1,0 +1,62 @@
+---
+driver:
+  name: docker
+  use_sudo: false
+  privileged: true
+  require_chef_omnibus: false
+
+verifier:
+  name: inspec
+  inspec_tests:
+    - test/integration/consul/inspec
+
+platforms:
+  - name: debian-10-master-py3
+    driver:
+      image: netmanagers/salt-master-py3:debian-10
+  - name: ubuntu-1804-master-py3
+    driver:
+      image: netmanagers/salt-master-py3:ubuntu-18.04
+  - name: centos-8-master-py3
+    driver:
+      image: netmanagers/salt-master-py3:centos-8
+  - name: debian-9-2019-2-py3
+    driver:
+      image: netmanagers/salt-2019.2-py3:debian-9
+  - name: ubuntu-1804-2019-2-py3
+    driver:
+      image: netmanagers/salt-2019.2-py3:ubuntu-18.04
+  - name: centos-8-2019-2-py3
+    driver:
+      image: netmanagers/salt-2019.2-py3:centos-8
+
+provisioner:
+  name: salt_solo
+  #log_level: quiet
+  require_chef: false
+  formula: consul
+  state_top:
+    base:
+      '*':
+        - consul
+  pillars-from-files:
+    base.sls: pillar.example
+  pillars:
+    top.sls:
+      base:
+        '*':
+          - base
+          - consul
+    consul.sls:
+      consul:
+        register: []
+        scripts: []
+
+suites:
+  - name: consul-server
+    provisioner:
+      pillars:
+        consul.sls:
+          consul:
+            config:
+              server: True
