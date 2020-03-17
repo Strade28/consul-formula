@@ -53,7 +53,7 @@ provisioner:
         scripts: []
 
 suites:
-  - name: consul-server
+  - name: default
     provisioner:
       pillars:
         consul.sls:
