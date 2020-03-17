@@ -30,11 +30,8 @@ lockfile="/var/lock/subsys/$prog"
 logfile="/var/log/$prog"
 confdir="/etc/consul.d"
 
-# pull in sysconfig settings
-[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
-
-user=${CONSUL_USER:-consul}
-group=${CONSUL_GROUP:-consul}
+user={{ user }}
+group={{ group }}
 
 export GOMAXPROCS=${GOMAXPROCS:-2}
 
