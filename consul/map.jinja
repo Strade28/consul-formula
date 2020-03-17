@@ -1,22 +1,50 @@
+# -*- coding: utf-8 -*-
+# vim: ft=jinja
+
+{#- Get the `tplroot` from `tpldir` #}
 {%- set tplroot = tpldir.split('/')[0] %}
-{% import_yaml tplroot+"/defaults.yaml" as defaults %}
+{#- Start imports as #}
+{%- import_yaml tplroot ~ "/defaults.yaml" as default_settings %}
+{%- import_yaml tplroot ~ "/osarchmap.yaml" as osarchmap %}
+{%- import_yaml tplroot ~ "/osfamilymap.yaml" as osfamilymap %}
+{%- import_yaml tplroot ~ "/osmap.yaml" as osmap %}
+{%- import_yaml tplroot ~ "/osfingermap.yaml" as osfingermap %}
 
-{% set consul = salt['pillar.get']('consul', default=defaults.consul, merge=True) %}
+{#- Retrieve the config dict only once #}
+{%- set _config = salt['config.get'](tplroot, default={}) %}
+{% do salt.log.warning('LOOOOOOOOOG' ~ _config) %}
 
-{## Add any overrides based on CPU architecture. ##}
-{% set consul = salt['grains.filter_by']({
-        'armv6l': {
-            "arch": 'arm'
-        },
-        'armv7l': {
-            "arch": 'arm'
-        },
-        'x86_64': {
-            "arch": 'amd64'
-        }
-  }
-  ,grain="cpuarch"
-  ,merge=consul)
+{%- set defaults = salt['grains.filter_by'](
+      default_settings,
+      default=tplroot,
+      merge=salt['grains.filter_by'](
+        osarchmap,
+        grain='osarch',
+        merge=salt['grains.filter_by'](
+          osfamilymap,
+          grain='os_family',
+          merge=salt['grains.filter_by'](
+            osmap,
+            grain='os',
+            merge=salt['grains.filter_by'](
+              osfingermap,
+              grain='osfinger',
+              merge=salt['grains.filter_by'](
+                _config,
+                default='lookup'
+              )
+            )
+          )
+        )
+      )
+    )
 %}
 
-{% do consul.config.update({'retry_join': consul.config.retry_join or []}) %}
+{%- set config = salt['grains.filter_by'](
+      {'defaults': defaults},
+      default='defaults',
+      merge=_config
+    )
+%}
+
+{%- set consul = config %}
