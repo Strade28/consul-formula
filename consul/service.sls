@@ -22,20 +22,20 @@ consul-init-file:
     {%- if salt['test.provider']('service').startswith('systemd') %}
     - source: salt://{{ tplroot }}/files/consul.service
     - name: /etc/systemd/system/consul.service
-    - mode: `0644`
+    - mode: '0644'
     {%- elif salt['test.provider']('service') == 'upstart' %}
     - source: salt://{{ tplroot }}/files/consul.upstart
     - name: /etc/init/consul.conf
-    - mode: `0644`
+    - mode: '0644'
     {%- elif salt['test.provider']('service') == 'freebsdservice' %}
     - source: salt://{{ tplroot }}/files/consul.service.fbsd
     - name: /usr/local/etc/rc.d/consul
     - template: jinja
-    - mode: `0555`
+    - mode: '0555'
     {%- else %}
     - source: salt://{{ tplroot }}/files/consul.sysvinit
     - name: /etc/init.d/consul
-    - mode: `0755`
+    - mode: '0755'
     {%- endif %}
     - template: jinja
     - context:
