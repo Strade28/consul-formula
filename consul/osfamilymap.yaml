@@ -1,0 +1,5 @@
+FreeBSD:
+  rootgroup: wheel
+  config_dir: /usr/local/etc/consul.d
+  config:
+    data_dir: /var/db/consul
